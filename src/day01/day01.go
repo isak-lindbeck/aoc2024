@@ -1,8 +1,8 @@
 package day01
 
 import (
+	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -14,8 +14,8 @@ func Run(input string) (int, int) {
 	var mapB = make(map[int]int)
 	for _, line := range strings.Split(input, "\n") {
 		res := strings.Fields(line)
-		aValue, _ := strconv.Atoi(res[0])
-		bValue, _ := strconv.Atoi(res[1])
+		aValue := ints.Parse(res[0])
+		bValue := ints.Parse(res[1])
 
 		sliceA = append(sliceA, aValue)
 		sliceB = append(sliceB, bValue)

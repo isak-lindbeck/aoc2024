@@ -1,3 +1,5 @@
 .idea
 /inputs
 /answers
+
+/src/day*/*_test.go
