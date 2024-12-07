@@ -8,17 +8,39 @@ type Coord struct {
 	X, Y int
 }
 
-type Matrix[T any] struct {
+type Matrix[T comparable] struct {
 	Width  int
 	Height int
 	data   []T
 }
 
-func NewMatrix[T any](width, height int) Matrix[T] {
+func NewMatrix[T comparable](width, height int) Matrix[T] {
 	return Matrix[T]{
 		Width:  width,
 		Height: height,
 		data:   make([]T, width*height),
+	}
+}
+
+func NewMatrixWithDefaultValue[T comparable](width, height int, defaultValue T) Matrix[T] {
+	data := make([]T, width*height)
+	for i := range data {
+		data[i] = defaultValue
+	}
+	return Matrix[T]{
+		Width:  width,
+		Height: height,
+		data:   data,
+	}
+}
+
+func CloneMatrix[T comparable](m Matrix[T]) Matrix[T] {
+	data := make([]T, m.Width*m.Height)
+	copy(data, m.data)
+	return Matrix[T]{
+		Width:  m.Width,
+		Height: m.Height,
+		data:   data,
 	}
 }
 
@@ -62,4 +84,13 @@ func (m *Matrix[T]) Keys() func(yield func(int, int) bool) {
 			}
 		}
 	}
+}
+
+func (m *Matrix[T]) GetCoordinates(v T) (int, int) {
+	for x, y := range m.Keys() {
+		if v == m.Get(x, y) {
+			return x, y
+		}
+	}
+	return -1, -1
 }

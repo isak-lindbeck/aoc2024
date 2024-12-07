@@ -38,17 +38,16 @@ func Run(input string) (int, int) {
 		matrix.Set(blockPos.x, blockPos.y, '#')
 
 		currentDirection = 0
-		vwdMap := make(map[VisitedWithDirection]bool)
+		visitedWithDirection := utils.NewMatrixWithDefaultValue(matrix.Width, matrix.Height, 0)
 
 		currentPos = Vector{x: startX, y: startY}
-		works := false
 		for matrix.GetSafe(currentPos.x, currentPos.y, 'X') != 'X' {
-			vwd := VisitedWithDirection{currentPos, directions[currentDirection]}
-			if vwdMap[vwd] {
-				works = true
+			visitedBitFlags := visitedWithDirection.Get(currentPos.x, currentPos.y)
+			if visitedBitFlags&(1<<currentDirection) > 0 {
+				ans2++
 				break
 			} else {
-				vwdMap[vwd] = true
+				visitedWithDirection.Set(currentPos.x, currentPos.y, visitedBitFlags|(1<<currentDirection))
 			}
 
 			next := matrix.GetSafe(currentPos.x+directions[currentDirection].x, currentPos.y+directions[currentDirection].y, 'X')
@@ -59,10 +58,6 @@ func Run(input string) (int, int) {
 			}
 		}
 
-		if works {
-			ans2++
-		}
-
 		matrix.Set(blockPos.x, blockPos.y, '.')
 	}
 
@@ -70,8 +65,6 @@ func Run(input string) (int, int) {
 }
 
 type Vector struct{ x, y int }
-
-type VisitedWithDirection struct{ v, d Vector }
 
 func (v1 *Vector) move(v2 Vector) {
 	v1.x += v2.x

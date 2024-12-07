@@ -19,3 +19,11 @@ func Parse(s string) int {
 	}
 	return i
 }
+
+func Pow(n, m int) int {
+	result := 1
+	for i := 1; i <= m; i++ {
+		result *= n
+	}
+	return result
+}

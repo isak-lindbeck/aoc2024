@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
 func InputAsString(file string) string {
 	input, err := os.ReadFile(file)
 	if err != nil {
-		fmt.Print(err)
+		log.Fatal("Error reading file: ", err)
 	}
 	i := string(input)
 	return i
