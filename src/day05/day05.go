@@ -1,7 +1,6 @@
 package day05
 
 import (
-	"fmt"
 	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"slices"
 	"strings"
@@ -22,8 +21,6 @@ func Run(input string) (int, int) {
 		gt := GreaterThan{high: pInts[0], low: pInts[1]}
 		greaterThanMap[gt] = true
 	}
-	fmt.Println(split[0])
-	fmt.Println(split[1])
 
 	lists := strings.Split(split[1], "\n")
 	for list := range slices.Values(lists) {
