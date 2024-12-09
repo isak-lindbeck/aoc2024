@@ -74,6 +74,14 @@ func (m *Matrix[T]) Set(x, y int, value T) {
 	m.data[x*m.Height+y] = value
 }
 
+func (m *Matrix[T]) SetSafe(x, y int, value T) bool {
+	if x < 0 || y < 0 || x >= m.Width || y >= m.Height {
+		return false
+	}
+	m.Set(x, y, value)
+	return true
+}
+
 func (m *Matrix[T]) Keys() func(yield func(int, int) bool) {
 	return func(yield func(int, int) bool) {
 		for y := 0; y < m.Height; y++ {
