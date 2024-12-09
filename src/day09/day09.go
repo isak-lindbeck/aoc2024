@@ -17,37 +17,39 @@ func Run(input string) (int, int) {
 	}
 
 	ans1 = runPartOne(slices.Clone(diskChunks))
-
 	ans2 = runPartTwo(diskChunks)
 
 	return ans1, ans2
 }
 
 func runPartOne(diskChunks []int) int {
-	sum := 0
-	lastIndex := len(diskChunks) - 1
-	k := 0
-	for index := 0; index <= lastIndex; index++ {
-		for j := 0; j < diskChunks[index]; j++ {
-			if index%2 == 0 {
-				sum += k * (index / 2)
+	ans := 0
+	lastChunkIdx := len(diskChunks) - 1
+	blockIdx := 0
+	for chunkIdx := 0; chunkIdx <= lastChunkIdx; chunkIdx++ {
+		for range diskChunks[chunkIdx] {
+			isFreeChunk := chunkIdx%2 == 0
+			if isFreeChunk {
+				fileId := chunkIdx / 2
+				ans += blockIdx * fileId
 			} else {
-				if diskChunks[lastIndex] == 0 {
-					lastIndex -= 2
+				if diskChunks[lastChunkIdx] == 0 {
+					lastChunkIdx -= 2
 				}
-				diskChunks[lastIndex]--
-				sum += k * (lastIndex / 2)
+				diskChunks[lastChunkIdx]--
+				fileId := lastChunkIdx / 2
+				ans += blockIdx * fileId
 			}
-			k++
+			blockIdx++
 		}
 	}
 
-	return sum
+	return ans
 }
 
 func runPartTwo(diskChunks []int) int {
-	sum := 0
-	usedFreeSpaces := slices.Repeat([]int{0}, len(diskChunks))
+	ans := 0
+	usedSpaceIn := make([]int, len(diskChunks))
 	totalLengthBefore := make([]int, len(diskChunks))
 	total := 0
 	for i := 1; i < len(diskChunks); i++ {
@@ -55,31 +57,34 @@ func runPartTwo(diskChunks []int) int {
 		totalLengthBefore[i] = total
 	}
 
-	lastIndex := len(diskChunks) - 1
-	for lastIndex > 0 {
-		movedId := lastIndex / 2
-		movingChunk := diskChunks[lastIndex]
-		moved := false
-		for i := 1; i < lastIndex; i += 2 {
-			freeChunk := diskChunks[i]
-			if freeChunk >= movingChunk {
-				offset := usedFreeSpaces[i] + totalLengthBefore[i]
-				for l := range movingChunk {
-					sum += (l + offset) * movedId
-				}
-				usedFreeSpaces[i] += movingChunk
-				diskChunks[i] -= movingChunk
-				moved = true
+	firstFreeIdxOfSize := slices.Repeat([]int{1}, 10)
+	for movingFileIdx := len(diskChunks) - 1; movingFileIdx > 0; movingFileIdx -= 2 {
+		fileCanMove := false
+		movingFileSize := diskChunks[movingFileIdx]
+		freeChunkIdx := firstFreeIdxOfSize[movingFileSize]
+		for freeChunkIdx < movingFileIdx {
+			if diskChunks[freeChunkIdx] >= movingFileSize {
+				fileCanMove = true
 				break
 			}
+			freeChunkIdx += 2
 		}
-		if !moved {
-			offset := totalLengthBefore[lastIndex]
-			for l := range movingChunk {
-				sum += (l + offset) * movedId
+		fileId := movingFileIdx / 2
+		if fileCanMove {
+			offset := usedSpaceIn[freeChunkIdx] + totalLengthBefore[freeChunkIdx]
+			for blockIdx := range movingFileSize {
+				ans += (blockIdx + offset) * fileId
+			}
+			usedSpaceIn[freeChunkIdx] += movingFileSize
+			diskChunks[freeChunkIdx] -= movingFileSize
+
+			firstFreeIdxOfSize[movingFileSize] = freeChunkIdx
+		} else {
+			offset := totalLengthBefore[movingFileIdx]
+			for blockIdx := range movingFileSize {
+				ans += (blockIdx + offset) * fileId
 			}
 		}
-		lastIndex -= 2
 	}
-	return sum
+	return ans
 }
