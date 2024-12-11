@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"strings"
 )
 
@@ -55,6 +56,21 @@ func RuneMatrix(input string) Matrix[rune] {
 		x := i % width
 		y := i / height
 		matrix.Set(x, y, r)
+	}
+	return matrix
+}
+
+func DigitMatrix(input string) Matrix[int] {
+	input = strings.TrimSuffix(input, "\n")
+	width := strings.IndexRune(input, '\n')
+	height := strings.Count(input, "\n") + 1
+	input = strings.ReplaceAll(input, "\n", "")
+
+	matrix := NewMatrix[int](height, width)
+	for i, r := range input {
+		x := i % width
+		y := i / height
+		matrix.Set(x, y, ints.Parse(string(r)))
 	}
 	return matrix
 }
