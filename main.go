@@ -13,6 +13,8 @@ import (
 	"github.com/isak-lindbeck/aoc2024/src/day08"
 	"github.com/isak-lindbeck/aoc2024/src/day09"
 	"github.com/isak-lindbeck/aoc2024/src/day10"
+	"github.com/isak-lindbeck/aoc2024/src/day11"
+	"github.com/isak-lindbeck/aoc2024/src/day12"
 	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"github.com/isak-lindbeck/aoc2024/src/utils"
 	"os"
@@ -34,6 +36,7 @@ func main() {
 
 func runDay(day int) (int, int) {
 	inputAsString := utils.InputAsString(fmt.Sprintf("inputs/day%02d.txt", day))
+	inputAsString = strings.TrimSuffix(inputAsString, "\n")
 
 	ans1 := 0
 	ans2 := 0
@@ -59,6 +62,10 @@ func runDay(day int) (int, int) {
 		ans1, ans2 = day09.Run(inputAsString)
 	case 10:
 		ans1, ans2 = day10.Run(inputAsString)
+	case 11:
+		ans1, ans2 = day11.Run(inputAsString)
+	case 12:
+		ans1, ans2 = day12.Run(inputAsString)
 	}
 	duration("Runtime:", start)
 

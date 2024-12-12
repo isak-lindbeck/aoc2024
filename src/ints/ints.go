@@ -12,6 +12,14 @@ func Abs(x int) int {
 	return x
 }
 
+func ParseSlice(s []string) []int {
+	ints := make([]int, len(s))
+	for i, v := range s {
+		ints[i] = Parse(v)
+	}
+	return ints
+}
+
 func Parse(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
@@ -20,9 +28,9 @@ func Parse(s string) int {
 	return i
 }
 
-func Pow(n, m int) int {
+func Pow(n, exponent int) int {
 	result := 1
-	for i := 1; i <= m; i++ {
+	for i := 1; i <= exponent; i++ {
 		result *= n
 	}
 	return result
