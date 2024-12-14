@@ -16,6 +16,7 @@ import (
 	"github.com/isak-lindbeck/aoc2024/src/day11"
 	"github.com/isak-lindbeck/aoc2024/src/day12"
 	"github.com/isak-lindbeck/aoc2024/src/day13"
+	"github.com/isak-lindbeck/aoc2024/src/day14"
 	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"github.com/isak-lindbeck/aoc2024/src/utils"
 	"os"
@@ -69,6 +70,8 @@ func runDay(day int) (int, int) {
 		ans1, ans2 = day12.Run(inputAsString)
 	case 13:
 		ans1, ans2 = day13.Run(inputAsString)
+	case 14:
+		ans1, ans2 = day14.Run(inputAsString)
 	}
 	duration("Runtime:", start)
 

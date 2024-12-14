@@ -28,6 +28,13 @@ func Parse(s string) int {
 	return i
 }
 
+func FromBool(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
 func Pow(n, exponent int) int {
 	result := 1
 	for i := 1; i <= exponent; i++ {
