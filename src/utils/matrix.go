@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"strings"
 )
@@ -51,10 +52,10 @@ func RuneMatrix(input string) Matrix[rune] {
 	height := strings.Count(input, "\n") + 1
 	input = strings.ReplaceAll(input, "\n", "")
 
-	matrix := NewMatrix[rune](height, width)
+	matrix := NewMatrix[rune](width, height)
 	for i, r := range input {
 		x := i % width
-		y := i / height
+		y := i / width
 		matrix.Set(x, y, r)
 	}
 	return matrix
@@ -117,4 +118,13 @@ func (m *Matrix[T]) GetCoordinates(v T) (int, int) {
 		}
 	}
 	return -1, -1
+}
+
+func PrintRuneMatrix(matrix Matrix[rune]) {
+	for y := 0; y < matrix.Height; y++ {
+		for x := 0; x < matrix.Width; x++ {
+			fmt.Printf("%v", string(matrix.Get(x, y)))
+		}
+		fmt.Println()
+	}
 }

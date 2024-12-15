@@ -5,6 +5,7 @@ import (
 	"math"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 var width = 101
@@ -36,16 +37,39 @@ func Run(input string) (int, int) {
 	}
 	ans1 = calculateThreatLevelAtSecond(robots, 100)
 
-	minThreatLevel := math.MaxInt32
-	for i := range width * height {
-		threatLevel := calculateThreatLevelAtSecond(robots, i)
-		if threatLevel < minThreatLevel {
-			minThreatLevel = threatLevel
-			ans2 = i
+	var wg sync.WaitGroup
+	parallelism := 6
+	ch := make(chan ([]int), parallelism)
+	chunk := height * width / parallelism
+	for i := 0; i < parallelism; i++ {
+		wg.Add(1)
+		go findMinThreatLevelInRange(robots, i*chunk, (i+1)*chunk, ch, &wg)
+	}
+	wg.Wait()
+	close(ch)
+	minT := math.MaxInt32
+	for i := range ch {
+		if i[1] < minT {
+			minT = i[1]
+			ans2 = i[0]
 		}
 	}
 
 	return ans1, ans2
+}
+
+func findMinThreatLevelInRange(robots []Robot, start int, end int, ch chan []int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	minThreatLevel := math.MaxInt32
+	found := 0
+	for i := start; i < end; i++ {
+		threatLevel := calculateThreatLevelAtSecond(robots, i)
+		if threatLevel < minThreatLevel {
+			minThreatLevel = threatLevel
+			found = i
+		}
+	}
+	ch <- []int{found, minThreatLevel}
 }
 
 func calculateThreatLevelAtSecond(robots []Robot, seconds int) int {
