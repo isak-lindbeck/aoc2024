@@ -30,7 +30,7 @@ func Run(input string) (int, int) {
 func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 	size := matrix.Width * matrix.Height * 4
 	dist := slices.Repeat([]int{math.MaxInt}, size)
-	prev := slices.Repeat([]int{-1}, size)
+	prev := make([]NavPos, size)
 
 	dist[from.getIndex(&matrix)] = 0
 
@@ -46,12 +46,9 @@ func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 			alt := dist[cur.getIndex(&matrix)] + 1
 			nextIdx := next.getIndex(&matrix)
 			distNext := dist[nextIdx]
-			if alt <= distNext {
+			if alt < distNext {
 				dist[nextIdx] = alt
-				if alt < distNext {
-					prev[nextIdx] = 0
-				}
-				prev[nextIdx] = prev[nextIdx] | 1
+				prev[nextIdx] = cur
 				q = append(q, next)
 			}
 		}
@@ -59,24 +56,18 @@ func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 		alt := dist[cur.getIndex(&matrix)] + 1000
 		nextIdx := next.getIndex(&matrix)
 		distNext := dist[nextIdx]
-		if alt <= distNext {
+		if alt < distNext {
 			dist[nextIdx] = alt
-			if alt < distNext {
-				prev[nextIdx] = 0
-			}
-			prev[nextIdx] = prev[nextIdx] | 2
+			prev[nextIdx] = cur
 			q = append(q, next)
 		}
 		next = NavPos{cur.coordinate, (cur.direction + 1) % 4}
 		alt = dist[cur.getIndex(&matrix)] + 1000
 		nextIdx = next.getIndex(&matrix)
 		distNext = dist[nextIdx]
-		if alt <= distNext {
+		if alt < distNext {
 			dist[nextIdx] = alt
-			if alt < distNext {
-				prev[nextIdx] = 0
-			}
-			prev[nextIdx] = prev[nextIdx] | 4
+			prev[nextIdx] = cur
 			q = append(q, next)
 		}
 
@@ -98,7 +89,7 @@ func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 	}
 
 	counted := make(map[NavPos]bool)
-	countTiles(&counted, &prev, destinations[0], &matrix, from)
+	countTiles(&counted, &prev, &dist, destinations[0], &matrix, from)
 	tileCount := 0
 	counted2 := make(map[Vector]bool)
 
@@ -113,27 +104,29 @@ func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 	return minCost, tileCount
 }
 
-func countTiles(counted *map[NavPos]bool, prev *[]int, from NavPos, matrix *utils.Matrix[rune], start NavPos) {
+func countTiles(counted *map[NavPos]bool, prev *[]NavPos, dist *[]int, from NavPos, matrix *utils.Matrix[rune], start NavPos) {
 	if _, exist := (*counted)[from]; exist {
 		return
 	}
-	children := (*prev)[from.getIndex(matrix)]
 	(*counted)[from] = true
 	if from == start {
 		return
 	}
 
-	if children&1 > 0 {
-		next := NavPos{from.coordinate.subtract(directions[from.direction]), from.direction}
-		countTiles(counted, prev, next, matrix, start)
+	neighbors := []NavPos{
+		{from.coordinate.subtract(directions[from.direction]), from.direction},
+		{from.coordinate, (from.direction + 3) % 4},
+		{from.coordinate, (from.direction + 1) % 4},
 	}
-	if children&2 > 0 {
-		next := NavPos{from.coordinate, (from.direction + 1) % 4}
-		countTiles(counted, prev, next, matrix, start)
-	}
-	if children&4 > 0 {
-		next := NavPos{from.coordinate, (from.direction + 3) % 4}
-		countTiles(counted, prev, next, matrix, start)
+
+	pp := (*prev)[from.getIndex(matrix)]
+	previous := pp.getIndex(matrix)
+	lowestCost := (*dist)[previous]
+	for _, neighbor := range neighbors {
+		nCost := (*dist)[neighbor.getIndex(matrix)]
+		if nCost == lowestCost || nCost == lowestCost-999 {
+			countTiles(counted, prev, dist, neighbor, matrix, start)
+		}
 	}
 }
 
