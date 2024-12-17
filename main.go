@@ -29,7 +29,7 @@ import (
 func main() {
 	today := time.Now().Day()
 
-	runDay(today)
+	runDay(today - 1)
 
 	if false {
 		for day := 1; day < min(today, 25); day++ {

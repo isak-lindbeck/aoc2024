@@ -34,41 +34,38 @@ func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 
 	dist[from.getIndex(&matrix)] = 0
 
-	q := make([]NavPos, 1, size)
-	q[0] = from
-	cur := q[len(q)-1]
-	for len(q) > 0 {
-		cur = q[len(q)-1]
-		q = q[:len(q)-1]
-
+	queue := utils.NewQueue(make([]NavPos, size))
+	queue.Push(from)
+	for true {
+		cur, exists := queue.Pop()
+		if !exists {
+			break
+		}
 		next := NavPos{cur.coordinate.add(directions[cur.direction]), cur.direction}
 		if matrix.Get(next.coordinate.x, next.coordinate.y) == '.' {
 			alt := dist[cur.getIndex(&matrix)] + 1
 			nextIdx := next.getIndex(&matrix)
-			distNext := dist[nextIdx]
-			if alt < distNext {
+			if alt <= dist[nextIdx] {
 				dist[nextIdx] = alt
 				prev[nextIdx] = cur
-				q = append(q, next)
+				queue.Push(next)
 			}
 		}
 		next = NavPos{cur.coordinate, (cur.direction + 3) % 4}
 		alt := dist[cur.getIndex(&matrix)] + 1000
 		nextIdx := next.getIndex(&matrix)
-		distNext := dist[nextIdx]
-		if alt < distNext {
+		if alt <= dist[nextIdx] {
 			dist[nextIdx] = alt
 			prev[nextIdx] = cur
-			q = append(q, next)
+			queue.Push(next)
 		}
 		next = NavPos{cur.coordinate, (cur.direction + 1) % 4}
 		alt = dist[cur.getIndex(&matrix)] + 1000
 		nextIdx = next.getIndex(&matrix)
-		distNext = dist[nextIdx]
-		if alt < distNext {
+		if alt <= dist[nextIdx] {
 			dist[nextIdx] = alt
 			prev[nextIdx] = cur
-			q = append(q, next)
+			queue.Push(next)
 		}
 
 	}
