@@ -22,70 +22,77 @@ func Run(input string) (int, int) {
 	toX, toY := matrix.GetCoordinates('E')
 	matrix.Set(fromX, fromY, '.')
 	matrix.Set(toX, toY, '.')
-	ans1, ans2 = Djikstra(matrix, NavPos{Vector{fromX, fromY}, 1}, Vector{toX, toY})
+	ans1, ans2 = Djikstra(matrix, Node{Vector{fromX, fromY}, 1}, Vector{toX, toY})
 
 	return ans1, ans2
 }
 
-func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
+func Djikstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 	size := matrix.Width * matrix.Height * 4
-	dist := slices.Repeat([]int{math.MaxInt}, size)
-	prev := make([]NavPos, size)
+	dist := slices.Repeat([]int{math.MaxInt - 1}, size)
+	prev := make([]Node, size)
 
 	dist[from.getIndex(&matrix)] = 0
 
-	queue := utils.NewQueue(make([]NavPos, size))
-	queue.Push(from)
+	minToCost := math.MaxInt
+	queue := utils.NewQueue(make([]Node, size))
+	queue.PushFront(from)
 	for true {
 		cur, exists := queue.Pop()
 		if !exists {
 			break
 		}
-		next := NavPos{cur.coordinate.add(directions[cur.direction]), cur.direction}
-		if matrix.Get(next.coordinate.x, next.coordinate.y) == '.' {
-			alt := dist[cur.getIndex(&matrix)] + 1
+		curDist := dist[cur.getIndex(&matrix)]
+		if cur.coordinate == to && curDist < minToCost {
+			minToCost = curDist
+		}
+
+		next := Node{cur.coordinate.add(directions[cur.direction]), cur.direction}
+		canMove := matrix.Get(next.coordinate.x, next.coordinate.y) == '.'
+		if canMove {
+			alt := curDist + 1
 			nextIdx := next.getIndex(&matrix)
-			if alt <= dist[nextIdx] {
+			if alt <= dist[nextIdx] && alt < minToCost {
 				dist[nextIdx] = alt
 				prev[nextIdx] = cur
-				queue.Push(next)
+				queue.PushFront(next)
 			}
 		}
-		next = NavPos{cur.coordinate, (cur.direction + 3) % 4}
-		alt := dist[cur.getIndex(&matrix)] + 1000
+		next = Node{cur.coordinate, (cur.direction + 3) % 4}
+		alt := curDist + 1000
 		nextIdx := next.getIndex(&matrix)
-		if alt <= dist[nextIdx] {
+		if alt <= dist[nextIdx] && alt < minToCost {
 			dist[nextIdx] = alt
 			prev[nextIdx] = cur
-			queue.Push(next)
+			queue.PushBack(next)
 		}
-		next = NavPos{cur.coordinate, (cur.direction + 1) % 4}
-		alt = dist[cur.getIndex(&matrix)] + 1000
+		next = Node{cur.coordinate, (cur.direction + 1) % 4}
+		alt = curDist + 1000
 		nextIdx = next.getIndex(&matrix)
-		if alt <= dist[nextIdx] {
+		if alt <= dist[nextIdx] && alt < minToCost {
 			dist[nextIdx] = alt
 			prev[nextIdx] = cur
-			queue.Push(next)
+			queue.PushBack(next)
 		}
 
 	}
 
 	minCost := math.MaxInt
-	destinations := make([]NavPos, 0, 1)
+	destinations := make([]Node, 0, 1)
 
 	for i, _ := range directions {
-		dest := NavPos{to, i}
+		dest := Node{to, i}
 		cost := dist[dest.getIndex(&matrix)]
 		if cost <= minCost {
 			if cost == minCost {
-				destinations = make([]NavPos, 0, 1)
+				destinations = make([]Node, 0, 1)
 			}
 			destinations = append(destinations, dest)
 			minCost = cost
 		}
 	}
 
-	counted := make(map[NavPos]bool)
+	counted := make(map[Node]bool)
 	countTiles(&counted, &prev, &dist, destinations[0], &matrix, from)
 	tileCount := 0
 	counted2 := make(map[Vector]bool)
@@ -101,7 +108,7 @@ func Djikstra(matrix utils.Matrix[rune], from NavPos, to Vector) (int, int) {
 	return minCost, tileCount
 }
 
-func countTiles(counted *map[NavPos]bool, prev *[]NavPos, dist *[]int, from NavPos, matrix *utils.Matrix[rune], start NavPos) {
+func countTiles(counted *map[Node]bool, prev *[]Node, dist *[]int, from Node, matrix *utils.Matrix[rune], start Node) {
 	if _, exist := (*counted)[from]; exist {
 		return
 	}
@@ -110,7 +117,7 @@ func countTiles(counted *map[NavPos]bool, prev *[]NavPos, dist *[]int, from NavP
 		return
 	}
 
-	neighbors := []NavPos{
+	neighbors := []Node{
 		{from.coordinate.subtract(directions[from.direction]), from.direction},
 		{from.coordinate, (from.direction + 3) % 4},
 		{from.coordinate, (from.direction + 1) % 4},
@@ -137,11 +144,11 @@ func (v1 *Vector) subtract(v2 Vector) Vector {
 	return Vector{v1.x - v2.x, v1.y - v2.y}
 }
 
-type NavPos struct {
+type Node struct {
 	coordinate Vector
 	direction  int
 }
 
-func (np NavPos) getIndex(matrix *utils.Matrix[rune]) int {
+func (np Node) getIndex(matrix *utils.Matrix[rune]) int {
 	return np.direction*(matrix.Width*matrix.Height) + (np.coordinate.x*matrix.Height + np.coordinate.y)
 }
