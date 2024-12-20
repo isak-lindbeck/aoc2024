@@ -2,6 +2,7 @@ package day19
 
 import (
 	"strings"
+	"sync"
 )
 
 func Run(input string) (int, int) {
@@ -20,9 +21,20 @@ func Run(input string) (int, int) {
 		}
 	}
 
+	var wg sync.WaitGroup
+	ch := make(chan (int), len(patterns))
+
 	for _, pattern := range patterns {
-		possibleCombinations := calcPossibleCombinations(pattern, towels, make(map[string]int))
-		ans2 += possibleCombinations
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			ch <- calcPossibleCombinations(pattern, towels, make(map[string]int))
+		}()
+	}
+	wg.Wait()
+	close(ch)
+	for i := range ch {
+		ans2 += i
 	}
 
 	return ans1, ans2
