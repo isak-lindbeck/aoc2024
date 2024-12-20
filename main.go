@@ -19,9 +19,10 @@ import (
 	"github.com/isak-lindbeck/aoc2024/src/day14"
 	"github.com/isak-lindbeck/aoc2024/src/day15"
 	"github.com/isak-lindbeck/aoc2024/src/day16"
-	"github.com/isak-lindbeck/aoc2024/src/ints"
+	"github.com/isak-lindbeck/aoc2024/src/day17"
 	"github.com/isak-lindbeck/aoc2024/src/utils"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,7 +30,7 @@ import (
 func main() {
 	today := time.Now().Day()
 
-	runDay(today - 1)
+	runDay(today)
 
 	if false {
 		for day := 1; day < min(today, 25); day++ {
@@ -38,46 +39,50 @@ func main() {
 	}
 }
 
-func runDay(day int) (int, int) {
+func runDay(day int) (string, string) {
 	inputAsString := utils.InputAsString(fmt.Sprintf("inputs/day%02d.txt", day))
 	inputAsString = strings.TrimSuffix(inputAsString, "\n")
 
-	ans1 := 0
-	ans2 := 0
+	ans1 := "0"
+	ans2 := "0"
 	start := time.Now()
 	switch day {
 	case 1:
-		ans1, ans2 = day01.Run(inputAsString)
+		ans1, ans2 = asStringAns(day01.Run(inputAsString))
 	case 2:
-		ans1, ans2 = day02.Run(inputAsString)
+		ans1, ans2 = asStringAns(day02.Run(inputAsString))
 	case 3:
-		ans1, ans2 = day03.Run(inputAsString)
+		ans1, ans2 = asStringAns(day03.Run(inputAsString))
 	case 4:
-		ans1, ans2 = day04.Run(inputAsString)
+		ans1, ans2 = asStringAns(day04.Run(inputAsString))
 	case 5:
-		ans1, ans2 = day05.Run(inputAsString)
+		ans1, ans2 = asStringAns(day05.Run(inputAsString))
 	case 6:
-		ans1, ans2 = day06.Run(inputAsString)
+		ans1, ans2 = asStringAns(day06.Run(inputAsString))
 	case 7:
-		ans1, ans2 = day07.Run(inputAsString)
+		ans1, ans2 = asStringAns(day07.Run(inputAsString))
 	case 8:
-		ans1, ans2 = day08.Run(inputAsString)
+		ans1, ans2 = asStringAns(day08.Run(inputAsString))
 	case 9:
-		ans1, ans2 = day09.Run(inputAsString)
+		ans1, ans2 = asStringAns(day09.Run(inputAsString))
 	case 10:
-		ans1, ans2 = day10.Run(inputAsString)
+		ans1, ans2 = asStringAns(day10.Run(inputAsString))
 	case 11:
-		ans1, ans2 = day11.Run(inputAsString)
+		ans1, ans2 = asStringAns(day11.Run(inputAsString))
 	case 12:
-		ans1, ans2 = day12.Run(inputAsString)
+		ans1, ans2 = asStringAns(day12.Run(inputAsString))
 	case 13:
-		ans1, ans2 = day13.Run(inputAsString)
+		ans1, ans2 = asStringAns(day13.Run(inputAsString))
 	case 14:
-		ans1, ans2 = day14.Run(inputAsString)
+		ans1, ans2 = asStringAns(day14.Run(inputAsString))
 	case 15:
-		ans1, ans2 = day15.Run(inputAsString)
+		ans1, ans2 = asStringAns(day15.Run(inputAsString))
 	case 16:
-		ans1, ans2 = day16.Run(inputAsString)
+		ans1, ans2 = asStringAns(day16.Run(inputAsString))
+	case 17:
+		out1, out2 := day17.Run(inputAsString)
+		ans1 = out1
+		ans2 = strconv.Itoa(out2)
 	}
 	duration("Runtime:", start)
 
@@ -93,22 +98,22 @@ func duration(msg string, start time.Time) {
 	fmt.Printf("%v: %v\n", msg, time.Since(start))
 }
 
-func checkAnswers(ans1 int, ans2 int, day int) {
+func checkAnswers(ans1, ans2 string, day int) {
 
 	input, err := os.ReadFile(fmt.Sprintf("answers/day%02d.txt", day))
 	if err == nil {
 		answers := string(input)
 		split := strings.Split(answers, "\n")
 		fmt.Printf("Answers day%02d:\n", day)
-		if ints.Parse(split[0]) != ans1 {
-			color.Red("%d\n", ans1)
+		if split[0] != ans1 {
+			color.Red("%s\n", ans1)
 		} else {
-			color.Green("%d\n", ans1)
+			color.Green("%s\n", ans1)
 		}
-		if ints.Parse(split[1]) != ans2 {
-			color.Red("%d\n", ans2)
+		if split[1] != ans2 {
+			color.Red("%s\n", ans2)
 		} else {
-			color.Green("%d\n", ans2)
+			color.Green("%s\n", ans2)
 		}
 	} else {
 		fmt.Printf("Answers day%02d:\n", day)
@@ -117,4 +122,8 @@ func checkAnswers(ans1 int, ans2 int, day int) {
 	}
 	fmt.Println()
 
+}
+
+func asStringAns(a int, b int) (string, string) {
+	return strconv.Itoa(a), strconv.Itoa(b)
 }
