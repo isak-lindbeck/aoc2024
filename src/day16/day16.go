@@ -22,12 +22,12 @@ func Run(input string) (int, int) {
 	toX, toY := matrix.GetCoordinates('E')
 	matrix.Set(fromX, fromY, '.')
 	matrix.Set(toX, toY, '.')
-	ans1, ans2 = Djikstra(matrix, Node{Vector{fromX, fromY}, 1}, Vector{toX, toY})
+	ans1, ans2 = Dijkstra(matrix, Node{Vector{fromX, fromY}, 1}, Vector{toX, toY})
 
 	return ans1, ans2
 }
 
-func Djikstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
+func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 	size := matrix.Width * matrix.Height * 4
 	dist := slices.Repeat([]int{math.MaxInt - 1}, size)
 	prev := make([]Node, size)

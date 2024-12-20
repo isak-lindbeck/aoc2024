@@ -20,6 +20,7 @@ import (
 	"github.com/isak-lindbeck/aoc2024/src/day15"
 	"github.com/isak-lindbeck/aoc2024/src/day16"
 	"github.com/isak-lindbeck/aoc2024/src/day17"
+	"github.com/isak-lindbeck/aoc2024/src/day18"
 	"github.com/isak-lindbeck/aoc2024/src/utils"
 	"os"
 	"strconv"
@@ -30,6 +31,7 @@ import (
 func main() {
 	today := time.Now().Day()
 
+	today = 18
 	runDay(today)
 
 	if false {
@@ -80,18 +82,14 @@ func runDay(day int) (string, string) {
 	case 16:
 		ans1, ans2 = asStringAns(day16.Run(inputAsString))
 	case 17:
-		out1, out2 := day17.Run(inputAsString)
-		ans1 = out1
-		ans2 = strconv.Itoa(out2)
+		ans1, ans2 = asStringAns2(day17.Run(inputAsString))
+	case 18:
+		ans1, ans2 = asStringAns1(day18.Run(inputAsString))
 	}
 	duration("Runtime:", start)
 
 	checkAnswers(ans1, ans2, day)
 	return ans1, ans2
-}
-
-func track(msg string) (string, time.Time) {
-	return msg, time.Now()
 }
 
 func duration(msg string, start time.Time) {
@@ -126,4 +124,12 @@ func checkAnswers(ans1, ans2 string, day int) {
 
 func asStringAns(a int, b int) (string, string) {
 	return strconv.Itoa(a), strconv.Itoa(b)
+}
+
+func asStringAns1(a int, b string) (string, string) {
+	return strconv.Itoa(a), b
+}
+
+func asStringAns2(a string, b int) (string, string) {
+	return a, strconv.Itoa(b)
 }
