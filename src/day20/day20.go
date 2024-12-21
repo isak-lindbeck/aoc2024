@@ -1,7 +1,6 @@
 package day20
 
 import (
-	"fmt"
 	"github.com/isak-lindbeck/aoc2024/src/ints"
 	"github.com/isak-lindbeck/aoc2024/src/utils"
 	"math"
@@ -21,64 +20,41 @@ func Run(input string) (int, int) {
 	matrix := utils.RuneMatrix(input)
 	start := NewVector(matrix.GetCoordinates('S'))
 	end := NewVector(matrix.GetCoordinates('E'))
-	matrix.SetAt(start.xy())('.')
-	matrix.SetAt(end.xy())('.')
-	outsideMap := Vector{matrix.Width, matrix.Height}
-	original := Dijkstra{
-		utils.NewMatrixWithDefaultValue(matrix.Width, matrix.Height, math.MaxInt),
-		utils.NewMatrix[Vector](matrix.Width, matrix.Height),
-		utils.NewQueue(make([]Vector, matrix.Width*matrix.Height)),
-	}
-	original.dist.Set(start.x, start.y, 0)
-	original.queue.PushFront(start)
-	Solve(original, matrix, outsideMap, outsideMap, 0)
 
-	ans1 = doIt(matrix, original, end, 2)
-	ans2 = doIt(matrix, original, end, 20)
+	distFromStart := SolveDijkstra(matrix, start)
+	distFromEnd := SolveDijkstra(matrix, end)
+
+	ans1 = calculateCheatSuccesses(matrix, distFromStart, distFromEnd, end, 2, 100)
+	ans2 = calculateCheatSuccesses(matrix, distFromStart, distFromEnd, end, 20, 100)
 
 	return ans1, ans2
 }
 
-func doIt(matrix utils.Matrix[rune], original Dijkstra, end Vector, maxCheatDistance int) int {
+func calculateCheatSuccesses(matrix utils.Matrix[rune], distFromStart utils.Matrix[int], distF utils.Matrix[int], end Vector, maxCheatDistance, expectedSavedDistance int) int {
 	sum := 0
-	expectedSave := 100
-	savedDistance := make(map[int]int)
-	total := (matrix.Height - 2) * (matrix.Width - 2)
-	count := 0
 	for y := 1; y < matrix.Height-1; y++ {
 		for x := 1; x < matrix.Width-1; x++ {
 			cheatStart := Vector{x, y}
-			if matrix.Get(cheatStart.xy()) != '.' {
+			if matrix.Get(cheatStart.xy()) == '#' {
 				continue
 			}
 			for dy := -maxCheatDistance; dy <= maxCheatDistance; dy++ {
 				for dx := -maxCheatDistance; dx <= maxCheatDistance; dx++ {
 					cheatEnd := Vector{x + dx, y + dy}
+					if matrix.GetSafeAt(cheatEnd.xy())('#') == '#' {
+						continue
+					}
 					cheatDistance := cheatStart.distance(cheatEnd)
-					if matrix.GetSafeAt(cheatEnd.xy())('X') != '.' {
+					if cheatDistance < 2 || cheatDistance > maxCheatDistance {
 						continue
 					}
-					if cheatDistance < 2 {
-						continue
-					}
-					if cheatDistance > maxCheatDistance {
-						continue
-					}
-					newState := original.Clone()
-					newState.queue.PushBack(cheatStart)
-					Solve(newState, matrix, cheatStart, cheatEnd, expectedSave-1)
-					saved := original.dist.Get(end.xy()) - newState.dist.Get(end.xy())
-					savedDistance[saved]++
-					if saved >= expectedSave {
+					oldDist := distFromStart.Get(end.xy())
+					newDist := distFromStart.Get(cheatStart.xy()) + cheatDistance + distF.Get(cheatEnd.xy())
+					saved := oldDist - newDist
+					if saved >= expectedSavedDistance {
 						sum++
 					}
 				}
-			}
-			count++
-			if count%100 == 0 {
-				fmt.Print(count)
-				fmt.Print(" / ")
-				fmt.Println(total)
 			}
 		}
 	}
@@ -86,53 +62,35 @@ func doIt(matrix utils.Matrix[rune], original Dijkstra, end Vector, maxCheatDist
 	return sum
 }
 
-type Dijkstra struct {
-	dist  utils.Matrix[int]
-	prev  utils.Matrix[Vector]
-	queue utils.Queue[Vector]
-}
+func SolveDijkstra(matrix utils.Matrix[rune], start Vector) utils.Matrix[int] {
+	dist := utils.NewMatrixWithDefaultValue(matrix.Width, matrix.Height, math.MaxInt)
+	prev := utils.NewMatrix[Vector](matrix.Width, matrix.Height)
+	queue := utils.NewQueue(make([]Vector, matrix.Width*matrix.Height))
 
-func (d Dijkstra) Clone() Dijkstra {
-	return Dijkstra{
-		utils.CloneMatrix(d.dist),
-		utils.CloneMatrix(d.prev),
-		d.queue.Clone(),
-	}
-}
-
-func Solve(state Dijkstra, matrix utils.Matrix[rune], cheatStart, cheatEnd Vector, expectedSave int) Dijkstra {
+	dist.Set(start.x, start.y, 0)
+	queue.PushFront(start)
 
 	for true {
-		cur, exists := state.queue.Pop()
+		cur, exists := queue.Pop()
 		if !exists {
 			break
 		}
-		curDist := state.dist.Get(cur.xy())
+		curDist := dist.Get(cur.xy())
 
 		for _, direction := range directions {
 			next := cur.add(direction)
 			if matrix.GetSafeAt(next.xy())('#') != '#' {
 				alt := curDist + 1
-				if alt < state.dist.Get(next.xy())-expectedSave {
-					state.dist.SetAt(next.xy())(alt)
-					state.prev.SetAt(next.xy())(cur)
-					state.queue.PushBack(next)
+				if alt < dist.Get(next.xy()) {
+					dist.SetAt(next.xy())(alt)
+					prev.SetAt(next.xy())(cur)
+					queue.PushBack(next)
 				}
-			}
-		}
-		if cur == cheatStart {
-			next := cheatEnd
-			cheatDistance := cheatStart.distance(cheatEnd)
-			alt := curDist + cheatDistance
-			if alt < state.dist.Get(next.xy())-expectedSave {
-				state.dist.SetAt(next.xy())(alt)
-				state.prev.SetAt(next.xy())(cur)
-				state.queue.PushBack(next)
 			}
 		}
 	}
 
-	return state
+	return dist
 }
 
 func NewVector(x, y int) Vector {
