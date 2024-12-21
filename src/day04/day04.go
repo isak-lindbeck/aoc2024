@@ -1,7 +1,7 @@
 package day04
 
 import (
-	"github.com/isak-lindbeck/aoc2024/src/utils"
+	. "github.com/isak-lindbeck/aoc2024/src/utils"
 	"slices"
 )
 
@@ -10,13 +10,13 @@ func Run(input string) (int, int) {
 	ans2 := 0
 
 	directions := []Vector{
-		{0, 1}, {0, -1}, // ↑ ↓
-		{-1, 0}, {1, 0}, // ← →
-		{-1, -1}, {1, 1}, // ↙ ↗
-		{-1, 1}, {1, -1}, // ↖ ↘
+		North, South, // ↑ ↓
+		West, East, // ← →
+		SouthWest, NorthEast, // ↙ ↗
+		NorthWest, SouthEast, // ↖ ↘
 	}
 
-	matrix := utils.RuneMatrix(input)
+	matrix := RuneMatrix(input)
 
 	for x, y := range matrix.Keys() {
 		value := matrix.Get(x, y)
@@ -24,8 +24,8 @@ func Run(input string) (int, int) {
 			for direction := range slices.Values(directions) {
 				word := []rune{'X', '.', '.', '.'}
 				for index := 1; index < 4; index++ {
-					d := direction.mul(index)
-					word[index] = matrix.GetSafe(x+d.x, y+d.y, '.')
+					d := direction.Mul(index)
+					word[index] = matrix.GetSafe(x+d.X, y+d.Y, '.')
 				}
 				wordString := string(word)
 				if wordString == "XMAS" {
@@ -44,10 +44,4 @@ func Run(input string) (int, int) {
 	}
 
 	return ans1, ans2
-}
-
-type Vector struct{ x, y int }
-
-func (d Vector) mul(a int) Vector {
-	return Vector{d.x * a, d.y * a}
 }

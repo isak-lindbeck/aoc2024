@@ -9,12 +9,7 @@ import (
 	"strings"
 )
 
-var up = Vector{Y: -1}
-var right = Vector{X: 1}
-var down = Vector{Y: 1}
-var left = Vector{X: -1}
-
-var directions = []Vector{up, right, down, left}
+var directions = []Vector{Up, Right, Down, Left}
 
 var numpad = RuneMatrix("789\n456\n123\n#0A")
 var keypad = RuneMatrix("#^A\n<v>")
@@ -104,7 +99,7 @@ func SolvePaths(matrix Matrix[rune], from, target Vector) []string {
 	}
 
 	for _, direction := range directions {
-		next := from.Add(direction)
+		next := from.Add(direction.XY())
 		if next.Distance(target) >= from.Distance(target) {
 			continue
 		}
@@ -127,13 +122,13 @@ func shortestLength() func(a string, b string) int {
 
 func toString(direction Vector) string {
 	switch direction {
-	case up:
+	case Up:
 		return "^"
-	case right:
+	case Right:
 		return ">"
-	case down:
+	case Down:
 		return "v"
-	case left:
+	case Left:
 		return "<"
 	}
 	panic("invalid direction")

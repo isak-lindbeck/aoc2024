@@ -1,7 +1,7 @@
 package day08
 
 import (
-	"github.com/isak-lindbeck/aoc2024/src/utils"
+	. "github.com/isak-lindbeck/aoc2024/src/utils"
 	"strings"
 )
 
@@ -9,17 +9,17 @@ func Run(input string) (int, int) {
 	ans1 := 0
 	ans2 := 0
 
-	matrix := utils.RuneMatrix(strings.TrimSuffix(input, "\n"))
+	matrix := RuneMatrix(strings.TrimSuffix(input, "\n"))
 
-	asn1Matrix := utils.NewMatrixWithDefaultValue(matrix.Width, matrix.Height, false)
-	asn2Matrix := utils.NewMatrixWithDefaultValue(matrix.Width, matrix.Height, false)
+	asn1Matrix := NewMatrixWithDefaultValue(matrix.Width, matrix.Height, false)
+	asn2Matrix := NewMatrixWithDefaultValue(matrix.Width, matrix.Height, false)
 
-	var frequencyMap = make(map[rune][]Point)
+	var frequencyMap = make(map[rune][]Vector)
 
 	for x, y := range matrix.Keys() {
 		r := matrix.Get(x, y)
 		if r != '.' {
-			frequencyMap[r] = append(frequencyMap[r], Point{x, y})
+			frequencyMap[r] = append(frequencyMap[r], Vector{x, y})
 		}
 	}
 
@@ -30,14 +30,14 @@ func Run(input string) (int, int) {
 					continue
 				}
 
-				dx := pointB.x - pointA.x
-				dy := pointB.y - pointA.y
-				asn1Matrix.SetSafe(pointB.x+dx, pointB.y+dy, true)
+				dx := pointB.X - pointA.X
+				dy := pointB.Y - pointA.Y
+				asn1Matrix.SetSafe(pointB.X+dx, pointB.Y+dy, true)
 
-				point := Point{pointB.x, pointB.y}
-				for asn2Matrix.SetSafe(point.x, point.y, true) {
-					point.x = point.x + dx
-					point.y = point.y + dy
+				point := Vector{pointB.X, pointB.Y}
+				for asn2Matrix.SetSafe(point.X, point.Y, true) {
+					point.X = point.X + dx
+					point.Y = point.Y + dy
 				}
 			}
 		}
@@ -53,8 +53,4 @@ func Run(input string) (int, int) {
 	}
 
 	return ans1, ans2
-}
-
-type Point struct {
-	x, y int
 }

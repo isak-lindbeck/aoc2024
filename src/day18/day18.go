@@ -3,19 +3,14 @@ package day18
 import (
 	"fmt"
 	"github.com/isak-lindbeck/aoc2024/src/ints"
-	"github.com/isak-lindbeck/aoc2024/src/utils"
+	. "github.com/isak-lindbeck/aoc2024/src/utils"
 	"math"
 	"regexp"
 )
 
 var side = 71
 
-var up = Vector{0, -1}
-var right = Vector{1, 0}
-var down = Vector{0, 1}
-var left = Vector{-1, 0}
-
-var directions = []Vector{up, right, down, left}
+var directions = []Vector{Up, Right, Down, Left}
 
 func Run(input string) (int, string) {
 	ans1 := 0
@@ -39,17 +34,17 @@ func Run(input string) (int, string) {
 		blocks[i/2] = Vector{x, y}
 	}
 
-	matrix := utils.NewMatrixWithDefaultValue(side, side, true)
+	matrix := NewMatrixWithDefaultValue(side, side, true)
 	part1Matrix := addBlocks(matrix, blocks, 0, partOneNumBlocks)
 
 	ans1 = Dijkstra(part1Matrix, from, to)
 
-	matrix = utils.NewMatrixWithDefaultValue(side, side, true)
+	matrix = NewMatrixWithDefaultValue(side, side, true)
 	low := 0
 	high := len(blocks)
 	for low <= high {
 		mid := (low + high) / 2
-		newMatrix := addBlocks(utils.CloneMatrix(matrix), blocks, 0, mid)
+		newMatrix := addBlocks(CloneMatrix(matrix), blocks, 0, mid)
 		distance1 := Dijkstra(newMatrix, from, to)
 		newMatrix = addBlocks(newMatrix, blocks, mid, mid+1)
 		distance2 := Dijkstra(newMatrix, from, to)
@@ -65,26 +60,26 @@ func Run(input string) (int, string) {
 			high = mid - 1
 		}
 	}
-	x, y := blocks[low].xy()
+	x, y := blocks[low].XY()
 	ans2 = fmt.Sprintf("%d,%d", x, y)
 
 	return ans1, ans2
 }
 
-func addBlocks(matrix utils.Matrix[bool], blocks []Vector, fromIdx, toIdx int) utils.Matrix[bool] {
+func addBlocks(matrix Matrix[bool], blocks []Vector, fromIdx, toIdx int) Matrix[bool] {
 	for i := fromIdx; i < toIdx; i++ {
-		x, y := blocks[i].xy()
+		x, y := blocks[i].XY()
 		matrix.Set(x, y, false)
 	}
 	return matrix
 }
 
-func Dijkstra(matrix utils.Matrix[bool], from, to Vector) int {
-	dist := utils.NewMatrixWithDefaultValue(side, side, math.MaxInt)
-	var prev = utils.NewMatrix[Vector](side, side)
-	dist.Set(from.x, from.y, 0)
+func Dijkstra(matrix Matrix[bool], from, to Vector) int {
+	dist := NewMatrixWithDefaultValue(side, side, math.MaxInt)
+	var prev = NewMatrix[Vector](side, side)
+	dist.Set(from.X, from.Y, 0)
 
-	queue := utils.NewQueue(make([]Vector, side))
+	queue := NewQueue(make([]Vector, side))
 	queue.PushFront(from)
 
 	for true {
@@ -92,11 +87,11 @@ func Dijkstra(matrix utils.Matrix[bool], from, to Vector) int {
 		if !exists {
 			break
 		}
-		curDist := dist.Get(cur.xy())
+		curDist := dist.Get(cur.XY())
 
 		for _, direction := range directions {
-			next := cur.add(direction)
-			x, y := next.xy()
+			next := cur.Add(direction.XY())
+			x, y := next.XY()
 			if matrix.GetSafe(x, y, false) {
 				alt := curDist + 1
 				if alt < dist.Get(x, y) {
@@ -108,15 +103,5 @@ func Dijkstra(matrix utils.Matrix[bool], from, to Vector) int {
 		}
 	}
 
-	return dist.Get(to.xy())
-}
-
-type Vector struct{ x, y int }
-
-func (v *Vector) xy() (int, int) {
-	return v.x, v.y
-}
-
-func (v1 *Vector) add(v2 Vector) Vector {
-	return Vector{v1.x + v2.x, v1.y + v2.y}
+	return dist.Get(to.XY())
 }

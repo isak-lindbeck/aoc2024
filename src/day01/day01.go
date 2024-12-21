@@ -30,17 +30,10 @@ func Run(input string) (int, int) {
 	var result2 = 0
 	for i, aVal := range sliceA {
 		bVal := sliceB[i]
-		diff := absDiffInt(aVal, bVal)
+		diff := ints.Abs(aVal - bVal)
 		result1 += diff
 		result2 += aVal * mapB[aVal]
 	}
 
 	return result1, result2
-}
-
-func absDiffInt(x, y int) int {
-	if x < y {
-		return y - x
-	}
-	return x - y
 }

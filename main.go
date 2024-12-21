@@ -34,7 +34,6 @@ import (
 func main() {
 	today := time.Now().Day()
 
-	today = 21
 	runDay(today)
 
 	if false {

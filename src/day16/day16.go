@@ -1,7 +1,7 @@
 package day16
 
 import (
-	"github.com/isak-lindbeck/aoc2024/src/utils"
+	. "github.com/isak-lindbeck/aoc2024/src/utils"
 	"math"
 	"slices"
 )
@@ -17,7 +17,7 @@ func Run(input string) (int, int) {
 	ans1 := 0
 	ans2 := 0
 
-	matrix := utils.RuneMatrix(input)
+	matrix := RuneMatrix(input)
 	fromX, fromY := matrix.GetCoordinates('S')
 	toX, toY := matrix.GetCoordinates('E')
 	matrix.Set(fromX, fromY, '.')
@@ -27,7 +27,7 @@ func Run(input string) (int, int) {
 	return ans1, ans2
 }
 
-func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
+func Dijkstra(matrix Matrix[rune], from Node, to Vector) (int, int) {
 	size := matrix.Width * matrix.Height * 4
 	dist := slices.Repeat([]int{math.MaxInt - 1}, size)
 	prev := make([]Node, size)
@@ -35,7 +35,7 @@ func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 	dist[from.getIndex(&matrix)] = 0
 
 	minToCost := math.MaxInt
-	queue := utils.NewQueue(make([]Node, size))
+	queue := NewQueue(make([]Node, size))
 	queue.PushFront(from)
 	for true {
 		cur, exists := queue.Pop()
@@ -47,8 +47,8 @@ func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 			minToCost = curDist
 		}
 
-		next := Node{cur.coordinate.add(directions[cur.direction]), cur.direction}
-		canMove := matrix.Get(next.coordinate.x, next.coordinate.y) == '.'
+		next := Node{cur.coordinate.Add(directions[cur.direction].XY()), cur.direction}
+		canMove := matrix.Get(next.coordinate.X, next.coordinate.Y) == '.'
 		if canMove {
 			alt := curDist + 1
 			nextIdx := next.getIndex(&matrix)
@@ -80,7 +80,7 @@ func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 	minCost := math.MaxInt
 	destinations := make([]Node, 0, 1)
 
-	for i, _ := range directions {
+	for i := range directions {
 		dest := Node{to, i}
 		cost := dist[dest.getIndex(&matrix)]
 		if cost <= minCost {
@@ -97,7 +97,7 @@ func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 	tileCount := 0
 	counted2 := make(map[Vector]bool)
 
-	for np, _ := range counted {
+	for np := range counted {
 		if _, exist := counted2[np.coordinate]; exist {
 			continue
 		}
@@ -108,7 +108,7 @@ func Dijkstra(matrix utils.Matrix[rune], from Node, to Vector) (int, int) {
 	return minCost, tileCount
 }
 
-func countTiles(counted *map[Node]bool, prev *[]Node, dist *[]int, from Node, matrix *utils.Matrix[rune], start Node) {
+func countTiles(counted *map[Node]bool, prev *[]Node, dist *[]int, from Node, matrix *Matrix[rune], start Node) {
 	if _, exist := (*counted)[from]; exist {
 		return
 	}
@@ -118,7 +118,7 @@ func countTiles(counted *map[Node]bool, prev *[]Node, dist *[]int, from Node, ma
 	}
 
 	neighbors := []Node{
-		{from.coordinate.subtract(directions[from.direction]), from.direction},
+		{from.coordinate.Subtract(directions[from.direction].XY()), from.direction},
 		{from.coordinate, (from.direction + 3) % 4},
 		{from.coordinate, (from.direction + 1) % 4},
 	}
@@ -134,21 +134,11 @@ func countTiles(counted *map[Node]bool, prev *[]Node, dist *[]int, from Node, ma
 	}
 }
 
-type Vector struct{ x, y int }
-
-func (v1 *Vector) add(v2 Vector) Vector {
-	return Vector{v1.x + v2.x, v1.y + v2.y}
-}
-
-func (v1 *Vector) subtract(v2 Vector) Vector {
-	return Vector{v1.x - v2.x, v1.y - v2.y}
-}
-
 type Node struct {
 	coordinate Vector
 	direction  int
 }
 
-func (np Node) getIndex(matrix *utils.Matrix[rune]) int {
-	return np.direction*(matrix.Width*matrix.Height) + (np.coordinate.x*matrix.Height + np.coordinate.y)
+func (np Node) getIndex(matrix *Matrix[rune]) int {
+	return np.direction*(matrix.Width*matrix.Height) + (np.coordinate.X*matrix.Height + np.coordinate.Y)
 }
