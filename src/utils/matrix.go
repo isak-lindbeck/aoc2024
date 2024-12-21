@@ -87,8 +87,19 @@ func (m *Matrix[T]) GetSafe(x, y int, defaultValue T) T {
 	return m.Get(x, y)
 }
 
+func (m *Matrix[T]) GetSafeAt(x, y int) func(T) T {
+	return func(t T) T {
+		return m.GetSafe(x, y, t)
+	}
+}
+
 func (m *Matrix[T]) Set(x, y int, value T) {
 	m.data[x*m.Height+y] = value
+}
+func (m *Matrix[T]) SetAt(x, y int) func(T) {
+	return func(t T) {
+		m.Set(x, y, t)
+	}
 }
 
 func (m *Matrix[T]) SetSafe(x, y int, value T) bool {

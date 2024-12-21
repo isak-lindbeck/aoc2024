@@ -1,5 +1,7 @@
 package utils
 
+import "slices"
+
 type Queue[T interface{}] struct {
 	current, last int
 	data          []T
@@ -39,4 +41,12 @@ func (q *Queue[T]) Pop() (T, bool) {
 	t := q.data[q.current]
 	q.current = (q.current + 1) % len(q.data)
 	return t, true
+}
+
+func (q *Queue[T]) Clone() Queue[T] {
+	return Queue[T]{
+		current: q.current,
+		last:    q.last,
+		data:    slices.Clone(q.data),
+	}
 }
