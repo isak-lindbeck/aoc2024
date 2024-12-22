@@ -2,44 +2,53 @@ package day22
 
 import (
 	"github.com/isak-lindbeck/aoc2024/src/ints"
+	"slices"
 	"strings"
+	"sync/atomic"
 )
 
 const side4dSlice = 19 // Covers values -9 -> +9
-var sequenceSums = create4dSlice[int]()
+var sequenceSums = create4dSlice[uint32]()
 
 func Run(input string) (int, int) {
 	ans1 := 0
 	ans2 := 0
 
-	split := strings.Split(input, "\n")
+	lines := strings.Fields(input)
 
-	for _, s := range split {
+	c := make(chan int)
+	for _, s := range lines {
 		secretNumber := ints.Parse(s)
-		sequence := []int{0, 0, 0, 0}
-		sequenceOffset := 0
-		isSet := create4dSlice[bool]()
-		for unused := 0; unused < 2000; unused++ {
-			next := processNumber(secretNumber)
-			nexVal := next % 10
-			change := nexVal - (secretNumber % 10)
-			sequence[sequenceOffset%4] = change
-			if sequenceOffset > 3 {
-				idx := toIdx(sequence, sequenceOffset)
-				if !isSet[idx] {
-					sequenceSums[idx] += nexVal
-					isSet[idx] = true
-				}
-			}
-			sequenceOffset++
-			secretNumber = next
-		}
-
-		ans1 += secretNumber
+		go calculateSecretNums(secretNumber, c)
 	}
-	ans2 = getMaxValue(sequenceSums)
+	for range lines {
+		ans1 += <-c
+	}
+	ans2 = int(slices.Max(sequenceSums))
 
 	return ans1, ans2
+}
+
+func calculateSecretNums(secretNumber int, c chan int) {
+	sequence := []int{0, 0, 0, 0}
+	sequenceOffset := 0
+	isSet := create4dSlice[bool]()
+	for unused := 0; unused < 2000; unused++ {
+		next := processNumber(secretNumber)
+		nexVal := next % 10
+		change := nexVal - (secretNumber % 10)
+		sequence[sequenceOffset%4] = change
+		if sequenceOffset > 3 {
+			idx := toIdx(sequence, sequenceOffset)
+			if !isSet[idx] {
+				atomic.AddUint32(&sequenceSums[idx], uint32(nexVal))
+				isSet[idx] = true
+			}
+		}
+		sequenceOffset++
+		secretNumber = next
+	}
+	c <- secretNumber
 }
 
 func processNumber(secretNumber int) int {
@@ -51,16 +60,6 @@ func processNumber(secretNumber int) int {
 
 func create4dSlice[T any]() []T {
 	return make([]T, side4dSlice*side4dSlice*side4dSlice*side4dSlice)
-}
-
-func getMaxValue(count []int) int {
-	maxVal := 0
-	for i := range count {
-		if count[i] > maxVal {
-			maxVal = count[i]
-		}
-	}
-	return maxVal
 }
 
 func toIdx(sequence []int, idx int) int {
