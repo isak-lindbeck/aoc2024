@@ -25,6 +25,7 @@ import (
 	"github.com/isak-lindbeck/aoc2024/src/day20"
 	"github.com/isak-lindbeck/aoc2024/src/day21"
 	"github.com/isak-lindbeck/aoc2024/src/day22"
+	"github.com/isak-lindbeck/aoc2024/src/day23"
 	"github.com/isak-lindbeck/aoc2024/src/utils"
 	"os"
 	"strconv"
@@ -96,6 +97,8 @@ func runDay(day int) (string, string) {
 		ans1, ans2 = asStringAns(day21.Run(inputAsString))
 	case 22:
 		ans1, ans2 = asStringAns(day22.Run(inputAsString))
+	case 23:
+		ans1, ans2 = asStringAns1(day23.Run(inputAsString))
 	default:
 		color.Red("Day %d not implemented!\n", day)
 	}
