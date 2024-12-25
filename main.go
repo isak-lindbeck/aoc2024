@@ -37,6 +37,8 @@ import (
 
 func main() {
 	today := time.Now().Day()
+
+	today = 24
 	runDay(today)
 
 	if false {
