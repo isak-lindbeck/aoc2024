@@ -36,16 +36,13 @@ import (
 )
 
 func main() {
-	today := time.Now().Day()
+	start := time.Now()
 
-	today = 24
-	runDay(today)
-
-	if false {
-		for day := 1; day < min(today, 25); day++ {
-			runDay(day)
-		}
+	for day := 1; day <= 25; day++ {
+		runDay(day)
 	}
+	fmt.Println()
+	duration("Total runtime:", start)
 }
 
 func runDay(day int) (string, string) {
