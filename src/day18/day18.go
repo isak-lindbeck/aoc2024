@@ -82,7 +82,7 @@ func Dijkstra(matrix Matrix[bool], from, to Vector) int {
 	queue := NewQueue(make([]Vector, side))
 	queue.PushFront(from)
 
-	for true {
+	for {
 		cur, exists := queue.Pop()
 		if !exists {
 			break

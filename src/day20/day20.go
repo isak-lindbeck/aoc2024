@@ -26,31 +26,40 @@ func Run(input string) (int, int) {
 
 func calculateCheatSuccesses(matrix Matrix[rune], distFromStart Matrix[int], distF Matrix[int], end Vector, maxCheatDistance, expectedSavedDistance int) int {
 	sum := 0
+	c := make(chan int)
 	for y := 1; y < matrix.Height-1; y++ {
-		for x := 1; x < matrix.Width-1; x++ {
-			cheatStart := Vector{x, y}
-			if matrix.Get(cheatStart.XY()) == '#' {
-				continue
-			}
-			for dy := -maxCheatDistance; dy <= maxCheatDistance; dy++ {
-				for dx := -maxCheatDistance; dx <= maxCheatDistance; dx++ {
-					cheatEnd := Vector{x + dx, y + dy}
-					if matrix.GetSafeAt(cheatEnd.XY())('#') == '#' {
-						continue
-					}
-					cheatDistance := cheatStart.Distance(cheatEnd)
-					if cheatDistance < 2 || cheatDistance > maxCheatDistance {
-						continue
-					}
-					oldDist := distFromStart.Get(end.XY())
-					newDist := distFromStart.Get(cheatStart.XY()) + cheatDistance + distF.Get(cheatEnd.XY())
-					saved := oldDist - newDist
-					if saved >= expectedSavedDistance {
-						sum++
+		go func() {
+			innerSum := 0
+			for x := 1; x < matrix.Width-1; x++ {
+				cheatStart := Vector{x, y}
+				if matrix.Get(cheatStart.XY()) == '#' {
+					continue
+				}
+				for dy := -maxCheatDistance; dy <= maxCheatDistance; dy++ {
+					for dx := -maxCheatDistance; dx <= maxCheatDistance; dx++ {
+						cheatEnd := Vector{X: x + dx, Y: y + dy}
+						if matrix.GetSafeAt(cheatEnd.XY())('#') == '#' {
+							continue
+						}
+						cheatDistance := cheatStart.Distance(cheatEnd)
+						if cheatDistance < 2 || cheatDistance > maxCheatDistance {
+							continue
+						}
+						oldDist := distFromStart.Get(end.XY())
+						newDist := distFromStart.Get(cheatStart.XY()) + cheatDistance + distF.Get(cheatEnd.XY())
+						saved := oldDist - newDist
+						if saved >= expectedSavedDistance {
+							innerSum++
+						}
 					}
 				}
 			}
-		}
+			c <- innerSum
+		}()
+	}
+
+	for y := 1; y < matrix.Height-1; y++ {
+		sum += <-c
 	}
 
 	return sum
@@ -64,7 +73,7 @@ func SolveDijkstra(matrix Matrix[rune], start Vector) Matrix[int] {
 	dist.Set(start.X, start.Y, 0)
 	queue.PushFront(start)
 
-	for true {
+	for {
 		cur, exists := queue.Pop()
 		if !exists {
 			break

@@ -6,12 +6,7 @@ import (
 	"slices"
 )
 
-var up = Vector{0, -1}
-var right = Vector{1, 0}
-var down = Vector{0, 1}
-var left = Vector{-1, 0}
-
-var directions = []Vector{up, right, down, left}
+var directions = []Vector{Up, Right, Down, Left}
 
 func Run(input string) (int, int) {
 	ans1 := 0

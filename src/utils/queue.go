@@ -50,3 +50,11 @@ func (q *Queue[T]) Clone() Queue[T] {
 		data:    slices.Clone(q.data),
 	}
 }
+
+func (q *Queue[T]) Size() int {
+	if q.last > q.current-1 {
+		return q.last - q.current
+	} else {
+		return len(q.data) + q.last - q.current
+	}
+}

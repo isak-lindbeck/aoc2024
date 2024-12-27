@@ -38,9 +38,11 @@ import (
 func main() {
 	start := time.Now()
 
-	for day := 1; day <= 25; day++ {
-		runDay(day)
-	}
+	runDay(20)
+
+	//for day := 1; day <= 25; day++ {
+	//	runDay(day)
+	//}
 	fmt.Println()
 	duration("Total runtime:", start)
 }
